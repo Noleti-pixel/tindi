@@ -17,6 +17,7 @@ void main() {
           //mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+            Image.asset('assets/website.jpg', height: 200, width: 200),
             Text(
               "Jumia Marketplace",
               style: TextStyle(
@@ -39,6 +40,13 @@ void main() {
               "Enter password",
               style: TextStyle(fontSize: 15, fontWeight: FontWeight.w200),
             ),
+            /*Padding(
+              padding: const EdgeInserts,fromLTRB(20,0,20,0),
+              child: Container(
+                height: 50,
+                width: double,infinity,
+                alighnment.center,
+                decoration*/
             TextField(),
             SizedBox(height: 30),
             MaterialButton(
