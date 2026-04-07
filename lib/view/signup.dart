@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -9,6 +11,12 @@ class SignupScreen extends StatefulWidget {
 }
 
 class _SignupScreenState extends State<SignupScreen> {
+  final TextEditingController fullname = TextEditingController();
+  final TextEditingController email = TextEditingController();
+  final TextEditingController password = TextEditingController();
+  final TextEditingController confirmPassword = TextEditingController();
+  final TextEditingController phone = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -40,6 +48,7 @@ class _SignupScreenState extends State<SignupScreen> {
               ),
             ),
             TextField(
+              controller: fullname,
               decoration: InputDecoration(
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(20),
@@ -63,6 +72,7 @@ class _SignupScreenState extends State<SignupScreen> {
               ),
             ),
             TextField(
+              controller: password,
               decoration: InputDecoration(
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(20)),
@@ -87,6 +97,7 @@ class _SignupScreenState extends State<SignupScreen> {
               ),
             ),
             TextField(
+              controller: confirmPassword,
               decoration: InputDecoration(
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(20)),
@@ -98,13 +109,40 @@ class _SignupScreenState extends State<SignupScreen> {
               ),
             ),
             SizedBox(height: 20),
-            Container(
-              height: 50,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: Colors.blueAccent,
-                borderRadius: BorderRadius.circular(20),
-              ),
+            MaterialButton(
+              onPressed: () async {
+                if (fullname.text.isEmpty) {
+                  Get.snackbar("Error", "Please enter first name");
+                } else if (email.text.isEmpty) {
+                  Get.snackbar("Error", "Please enter email name");
+                } else if (password.text.isEmpty ||
+                    confirmPassword.text.isEmpty ||
+                    password.text.toString().compareTo(
+                          confirmPassword.text.toString(),
+                        ) !=
+                        0) {
+                  Get.snackbar(
+                    "Error",
+                    "Password and Password confirmation be none empty and matching",
+                  );
+                } else {
+                  final response = await http.get(
+                    Uri.parse(
+                      "http://10.0.2.2/library_api/signup.php?username=${fullname.text} User&email=${email.text}@gmail.com&password=${password.text}&phone=${phone.text}",
+                    ),
+                  );
+                  if (response.statusCode == 200) {
+                    final serverData = jsonDecode(response.body);
+                    if (serverData['success'] == 1) {
+                      Get.snackbar("Success", "You are registered");
+                      Get.offAndToNamed("/");
+                    }
+                  } else {
+                    Get.snackbar("Registration", "Registration  Failed");
+                  }
+                }
+              },
+              color: Colors.blueAccent,
               child: Text(
                 "sign up",
                 style: TextStyle(fontSize: 20, color: Colors.white),
@@ -150,5 +188,15 @@ class _SignupScreenState extends State<SignupScreen> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    fullname.dispose();
+    email.dispose();
+    password.dispose();
+    confirmPassword.dispose();
+    phone.dispose();
+    super.dispose();
   }
 }

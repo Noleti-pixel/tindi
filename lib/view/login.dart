@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/controllers/logincontroller.dart';
 import 'package:get/get.dart';
+
+Logincontroller logincontroller = Get.put(Logincontroller());
+
+TextEditingController usernameController = TextEditingController();
+TextEditingController passwordController = TextEditingController();
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -9,6 +15,8 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  get child => null;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -35,6 +43,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
               TextField(
+                controller: usernameController,
                 decoration: InputDecoration(
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(20),
@@ -60,14 +69,29 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
               SizedBox(height: 10),
-              TextField(
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(20),
+              Obx(
+                () => TextField(
+                  controller: passwordController,
+                  obscureText: !logincontroller.PasswordVisible.value,
+                  decoration: InputDecoration(
+                    hintText: "Enter password here",
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    prefixIcon: Icon(Icons.lock),
+                    suffixIcon: GestureDetector(
+                      child: GestureDetector(
+                        child: Icon(
+                          logincontroller.PasswordVisible.value
+                              ? Icons.visibility_off
+                              : Icons.visibility,
+                        ),
+                        onTap: () {
+                          logincontroller.togglePassword();
+                        },
+                      ),
+                    ),
                   ),
-                  hintText: "Enter password here",
-                  prefixIcon: Icon(Icons.password),
-                  suffixIcon: Icon(Icons.visibility_off),
                 ),
               ),
               SizedBox(height: 30),
@@ -90,7 +114,17 @@ class _LoginScreenState extends State<LoginScreen> {
                     style: TextStyle(color: Colors.white, fontSize: 15),
                   ),
                   onTap: () {
-                    Get.offAndToNamed("/homescreen");
+                    bool success = logincontroller.login(
+                      usernameController.text,
+                      passwordController.text,
+                    );
+                    if (success) {
+                      Get.offAndToNamed("/homescreen");
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text("Invalid username or password")),
+                      );
+                    }
                   },
                 ),
               ),
