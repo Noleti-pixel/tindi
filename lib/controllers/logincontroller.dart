@@ -7,7 +7,7 @@ class Logincontroller extends GetxController {
   login(user, pass) {
     username.value = user;
     password.value = pass;
-    if (username.value == "admin" && password == "123") {
+    if (username.value == "admin" && password.value == "123456") {
       return true;
     } else {
       return false;
@@ -15,7 +15,7 @@ class Logincontroller extends GetxController {
   }
 
   togglePassword() {
-    passwordVisible.value = !passwordVisible.value;
+    PasswordVisible.value = !PasswordVisible.value;
     // Implement password visibility toggle logic here
   }
 }

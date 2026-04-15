@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/controllers/logincontroller.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 Logincontroller logincontroller = Get.put(Logincontroller());
 
@@ -95,39 +97,68 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
               SizedBox(height: 30),
-              // MaterialButton(
-              //   onPressed: () {},
-              //   color: Colors.brown,
-              //   textColor: Colors.white,
-              //   child: Text("Login"),
-              // ),
-              Container(
+              MaterialButton(
+                onPressed: () async {
+                  if (usernameController.text.isEmpty) {
+                    Get.snackbar("Error", "Enter username");
+                  } else if (passwordController.text.isEmpty) {
+                    Get.snackbar("Error", "Enter password");
+                  } else {
+                    try {
+                      final response = await http
+                          .get(
+                            Uri.parse(
+                              "http://10.0.2.2/library_api/login.php?phone=${usernameController.text}&password=${passwordController.text}",
+                            ),
+                          )
+                          .timeout(Duration(seconds: 5));
+                      if (response.statusCode == 200) {
+                        final serverData = jsonDecode(response.body);
+                        if (serverData['code'] == 1) {
+                          String phone = serverData["userdetails"][0]["phone"];
+                          print(phone);
+                          Get.offAndToNamed('/dashboard');
+                        } else {
+                          Get.snackbar(
+                            "Wrong Credentials",
+                            serverData["message"],
+                          );
+                        }
+                      } else {
+                        Get.snackbar(
+                          "Server Error",
+                          "Error occured while logging in",
+                        );
+                      }
+                    } catch (e) {
+                      // API not available, use local validation
+                      bool success = logincontroller.login(
+                        usernameController.text,
+                        passwordController.text,
+                      );
+                      if (success) {
+                        Get.offAndToNamed("/dashboard");
+                      } else {
+                        Get.snackbar(
+                          "Error",
+                          "Invalid username or password. Use admin/123456",
+                        );
+                      }
+                    }
+                  }
+                },
+                color: Colors.pinkAccent,
                 height: 50,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: Colors.pinkAccent,
+                minWidth: double.infinity,
+                shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: GestureDetector(
-                  child: Text(
-                    "Login",
-                    style: TextStyle(color: Colors.white, fontSize: 15),
-                  ),
-                  onTap: () {
-                    bool success = logincontroller.login(
-                      usernameController.text,
-                      passwordController.text,
-                    );
-                    if (success) {
-                      Get.offAndToNamed("/homescreen");
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text("Invalid username or password")),
-                      );
-                    }
-                  },
+                child: Text(
+                  "Login",
+                  style: TextStyle(color: Colors.white, fontSize: 15),
                 ),
               ),
+              SizedBox(height: 15),
               Padding(
                 padding: const EdgeInsets.fromLTRB(10, 5, 10, 0),
                 child: Row(

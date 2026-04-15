@@ -309,8 +309,8 @@ class _HomeScreenState extends State<HomeScreen> {
       bottomNavigationBar: CurvedNavigationBar(
         backgroundColor: Colors.pinkAccent,
         items: const <Widget>[
-          Icon(Icons.dashboard, size: 30, color: Colors.black),
           Icon(Icons.home, size: 30, color: Colors.black),
+          Icon(Icons.list, size: 30, color: Colors.black),
           Icon(Icons.shopping_cart, size: 30, color: Colors.black),
           Icon(Icons.person, size: 30, color: Colors.black),
         ],
@@ -318,7 +318,7 @@ class _HomeScreenState extends State<HomeScreen> {
           if (index == 0) {
             Get.toNamed('/dashboard');
           } else if (index == 1) {
-            Get.toNamed('/homescreen');
+            Get.toNamed('/clothes');
           } else if (index == 2) {
             Get.toNamed('/cart');
           } else if (index == 3) {

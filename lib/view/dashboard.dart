@@ -15,7 +15,7 @@ class _DashboardState extends State<Dashboard> {
     return Scaffold(
       appBar: AppBar(
         title: GestureDetector(
-          onTap: () => Get.toNamed('/dashboard'),
+          onTap: () => Get.toNamed('/homescreen'),
           child: const Text('TINDI COLLECTIONS'),
         ),
         centerTitle: true,
@@ -53,7 +53,7 @@ class _DashboardState extends State<Dashboard> {
           if (index == 0) {
             Get.toNamed('/homescreen');
           } else if (index == 1) {
-            // Categories
+            Get.toNamed('/homescreen');
           } else if (index == 2) {
             Get.toNamed('/cart');
           } else if (index == 3) {
