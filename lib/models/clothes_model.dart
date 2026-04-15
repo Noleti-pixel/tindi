@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 class ClothesModel {
   String name;
   String size;

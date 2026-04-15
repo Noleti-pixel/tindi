@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/models/clothes_model.dart';
-import 'package:get/get.dart';
 
 var myClothes = [
   ClothesModel(
@@ -39,7 +38,5 @@ class _ClothesState extends State<Clothes> {
         );
       },
     );
-    // :Center(
-    //   child:CircularProgressIndicator());
   }
 }

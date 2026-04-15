@@ -17,7 +17,7 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  get child => null;
+  Null get child => null;
 
   @override
   Widget build(BuildContext context) {

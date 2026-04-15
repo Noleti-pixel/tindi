@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:get/get.dart';
 
 class CartScreen extends StatefulWidget {
@@ -153,6 +154,23 @@ class _CartScreenState extends State<CartScreen> {
                 ),
               ],
             ),
+      bottomNavigationBar: CurvedNavigationBar(
+        backgroundColor: Colors.pinkAccent,
+        items: const <Widget>[
+          Icon(Icons.home, size: 30, color: Colors.black),
+          Icon(Icons.shopping_cart, size: 30, color: Colors.black),
+          Icon(Icons.person, size: 30, color: Colors.black),
+        ],
+        onTap: (index) {
+          if (index == 0) {
+            Get.toNamed('/dashboard');
+          } else if (index == 1) {
+            Get.toNamed('/cart');
+          } else if (index == 2) {
+            Get.toNamed('/profile');
+          }
+        },
+      ),
     );
   }
 }

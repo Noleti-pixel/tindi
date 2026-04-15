@@ -1,4 +1,4 @@
-import 'package:curved_navigation_bar/curved_navigation_bar.dart';
+/*import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -45,7 +45,6 @@ class _DashboardState extends State<Dashboard> {
         backgroundColor: Colors.pinkAccent,
         items: const <Widget>[
           Icon(Icons.home, size: 30, color: Colors.black),
-          Icon(Icons.category, size: 30, color: Colors.black),
           Icon(Icons.shopping_cart, size: 30, color: Colors.black),
           Icon(Icons.person, size: 30, color: Colors.black),
         ],
@@ -53,14 +52,12 @@ class _DashboardState extends State<Dashboard> {
           if (index == 0) {
             Get.toNamed('/homescreen');
           } else if (index == 1) {
-            Get.toNamed('/homescreen');
-          } else if (index == 2) {
             Get.toNamed('/cart');
-          } else if (index == 3) {
+          } else if (index == 2) {
             Get.toNamed('/profile');
           }
         },
       ),
     );
   }
-}
+}*/
