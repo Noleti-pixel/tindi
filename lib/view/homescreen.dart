@@ -1,6 +1,8 @@
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -12,118 +14,72 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
 
-  final List<Map<String, dynamic>> allProducts = [
-    // Clothes
-    {
-      'name': 'Dress',
-      'price': 'KSh 1500',
-      'image':
-          'https://images.unsplash.com/photo-1595777707802-041d4c4022f5?w=300',
-      'category': 'Clothes',
-      'sizes': ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
-    },
-    {
-      'name': 'Shirt',
-      'price': 'KSh 1500',
-      'image':
-          'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=300',
-      'category': 'Clothes',
-      'sizes': ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
-    },
-    {
-      'name': 'Blouse',
-      'price': 'KSh 1200',
-      'image':
-          'https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=300',
-      'category': 'Clothes',
-      'sizes': ['XS', 'S', 'M', 'L', 'XL'],
-    },
-    {
-      'name': 'Jacket',
-      'price': 'KSh 2500',
-      'image':
-          'https://images.unsplash.com/photo-1551028719-00167b16ebc5?w=300',
-      'category': 'Clothes',
-      'sizes': ['S', 'M', 'L', 'XL', 'XXL'],
-    },
-    // Shoes
-    {
-      'name': 'Shoes',
-      'price': 'KSh 3000',
-      'image':
-          'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=300',
-      'category': 'Shoes',
-      'sizes': ['6', '7', '8', '9', '10', '11', '12'],
-    },
-    {
-      'name': 'Sneakers',
-      'price': 'KSh 2800',
-      'image':
-          'https://images.unsplash.com/photo-1460353581641-37baddab0fa2?w=300',
-      'category': 'Shoes',
-      'sizes': ['5', '6', '7', '8', '9', '10', '11'],
-    },
-    {
-      'name': 'Heels',
-      'price': 'KSh 3500',
-      'image':
-          'https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=300',
-      'category': 'Shoes',
-      'sizes': ['5', '6', '7', '8', '9', '10'],
-    },
-    {
-      'name': 'Sandals',
-      'price': 'KSh 1800',
-      'image':
-          'https://images.unsplash.com/photo-1572099160559-b5a30f4e7eba?w=300',
-      'category': 'Shoes',
-      'sizes': ['6', '7', '8', '9', '10', '11'],
-    },
-    // Accessories
-    {
-      'name': 'Handbag',
-      'price': 'KSh 2200',
-      'image':
-          'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=300',
-      'category': 'Accessories',
-      'sizes': ['One Size'],
-    },
-    {
-      'name': 'Sunglasses',
-      'price': 'KSh 1600',
-      'image':
-          'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=300',
-      'category': 'Accessories',
-      'sizes': ['One Size'],
-    },
-    {
-      'name': 'Scarf',
-      'price': 'KSh 800',
-      'image':
-          'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=300',
-      'category': 'Accessories',
-      'sizes': ['One Size'],
-    },
-    {
-      'name': 'Watch',
-      'price': 'KSh 4000',
-      'image':
-          'https://images.unsplash.com/photo-1523293182086-7651a899d37f?w=300',
-      'category': 'Accessories',
-      'sizes': ['One Size'],
-    },
-    // Pants
-    {
-      'name': 'Pants',
-      'price': 'KSh 1000',
-      'image':
-          'https://images.unsplash.com/photo-1542272604-787c62d465d1?w=300',
-      'category': 'Clothes',
-      'sizes': ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
-    },
-  ];
+  // ========== DATABASE URL ==========
+  // CHANGE THIS TO YOUR DATABASE URL
+  final String databaseUrl = "http://10.0.2.2/clothes_api/get_clothes.php";
+  // Example: "http://192.168.x.x/your_api/get_clothes.php"
+  // Or: "https://yourserver.com/api/get_clothes.php"
+  // ====================================
+
+  // Empty list - will be filled from database
+  List<Map<String, dynamic>> allProducts = [];
 
   final List<String> categories = ['All', 'Clothes', 'Shoes', 'Accessories'];
+
+  @override
+  void initState() {
+    super.initState();
+    // Fetch clothes from database on app load
+    fetchClothesFromDatabase();
+  }
+
+  // Fetch clothes from your database
+  Future<void> fetchClothesFromDatabase() async {
+    try {
+      final response = await http.get(Uri.parse(databaseUrl));
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+
+        // If your API returns a list directly
+        if (data is List) {
+          setState(() {
+            // Clear old products and add new ones from database
+            allProducts.clear();
+            for (var item in data) {
+              allProducts.add({
+                'name': item['name'] ?? 'Unknown',
+                'price': 'KSh ${item['price'] ?? 0}',
+                'image': item['image'] ?? 'https://via.placeholder.com/300',
+                'category': item['category'] ?? 'Clothes',
+                'sizes': (item['sizes'] is List) ? item['sizes'] : ['One Size'],
+              });
+            }
+          });
+        }
+        // If your API returns data wrapped in a key (e.g., {"data": [...], "success": true})
+        else if (data is Map && data['data'] is List) {
+          setState(() {
+            allProducts.clear();
+            for (var item in data['data']) {
+              allProducts.add({
+                'name': item['name'] ?? 'Unknown',
+                'price': 'KSh ${item['price'] ?? 0}',
+                'image': item['image'] ?? 'https://via.placeholder.com/300',
+                'category': item['category'] ?? 'Clothes',
+                'sizes': (item['sizes'] is List) ? item['sizes'] : ['One Size'],
+              });
+            }
+          });
+        }
+      } else {
+        print('Failed to load clothes: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error fetching clothes: $e');
+      // Keep using hardcoded products if database fetch fails
+    }
+  }
 
   List<Map<String, dynamic>> get filteredProducts {
     if (_selectedIndex == 0) {
