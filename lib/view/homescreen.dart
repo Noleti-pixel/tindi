@@ -16,77 +16,74 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // ========== DATABASE URL ==========
   // CHANGE THIS TO YOUR DATABASE URL
-  final String databaseUrl = "http://10.0.2.2/clothes_api/get_clothes.php";
-  // Example: "http://192.168.x.x/your_api/get_clothes.php"
-  // Or: "https://yourserver.com/api/get_clothes.php"
+  final String databaseUrl = "http://192.168.11.35/clothes_api/get_clothes.php";
   // ====================================
 
-  // Empty list - will be filled from database
   List<Map<String, dynamic>> allProducts = [];
+  bool _isLoading = true;
+  String? _errorMessage;
 
-  final List<String> categories = ['All', 'Clothes', 'Shoes', 'Accessories'];
+  final List<String> categories = ['All', 'clothes', 'shoes', 'accessories'];
 
   @override
   void initState() {
     super.initState();
-    // Fetch clothes from database on app load
     fetchClothesFromDatabase();
   }
 
-  // Fetch clothes from your database
   Future<void> fetchClothesFromDatabase() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
     try {
-      final response = await http.get(Uri.parse(databaseUrl));
+      final response = await http
+          .get(Uri.parse(databaseUrl))
+          .timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
 
-        // If your API returns a list directly
+        List items = [];
         if (data is List) {
-          setState(() {
-            // Clear old products and add new ones from database
-            allProducts.clear();
-            for (var item in data) {
-              allProducts.add({
-                'name': item['name'] ?? 'Unknown',
-                'price': 'KSh ${item['price'] ?? 0}',
-                'image': item['image'] ?? 'https://via.placeholder.com/300',
-                'category': item['category'] ?? 'Clothes',
-                'sizes': (item['sizes'] is List) ? item['sizes'] : ['One Size'],
-              });
-            }
-          });
+          items = data;
+        } else if (data is Map && data['data'] is List) {
+          items = data['data'];
         }
-        // If your API returns data wrapped in a key (e.g., {"data": [...], "success": true})
-        else if (data is Map && data['data'] is List) {
-          setState(() {
-            allProducts.clear();
-            for (var item in data['data']) {
-              allProducts.add({
-                'name': item['name'] ?? 'Unknown',
-                'price': 'KSh ${item['price'] ?? 0}',
-                'image': item['image'] ?? 'https://via.placeholder.com/300',
-                'category': item['category'] ?? 'Clothes',
-                'sizes': (item['sizes'] is List) ? item['sizes'] : ['One Size'],
-              });
-            }
-          });
-        }
+
+        setState(() {
+          allProducts = items.map<Map<String, dynamic>>((item) {
+            return {
+              'name': item['name'] ?? 'Unknown',
+              'price': 'KSh ${item['price'] ?? 0}',
+              'image': item['image'] ?? '',
+              'category': item['category'] ?? 'Clothes',
+              'sizes': (item['sizes'] is List) ? item['sizes'] : ['One Size'],
+            };
+          }).toList();
+          _isLoading = false;
+        });
       } else {
-        print('Failed to load clothes: ${response.statusCode}');
+        setState(() {
+          _errorMessage = 'Server error: ${response.statusCode}';
+          _isLoading = false;
+        });
       }
     } catch (e) {
-      print('Error fetching clothes: $e');
-      // Keep using hardcoded products if database fetch fails
+      setState(() {
+        _errorMessage =
+            'Could not connect to server.\nCheck your database URL.';
+        _isLoading = false;
+      });
+      debugPrint('Error fetching clothes: $e');
     }
   }
 
   List<Map<String, dynamic>> get filteredProducts {
-    if (_selectedIndex == 0) {
-      return allProducts;
-    }
+    if (_selectedIndex == 0) return allProducts;
     return allProducts
-        .where((product) => product['category'] == categories[_selectedIndex])
+        .where((p) => p['category'] == categories[_selectedIndex])
         .toList();
   }
 
@@ -155,109 +152,198 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(height: 16),
 
-            // Products Grid
-            GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              padding: const EdgeInsets.all(8),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                childAspectRatio: 0.8,
-                crossAxisSpacing: 8,
-                mainAxisSpacing: 8,
-              ),
-              itemCount: filteredProducts.length,
-              itemBuilder: (context, index) {
-                return Card(
-                  elevation: 2,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(8),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: Image.network(
-                            filteredProducts[index]['image'],
-                            height: 100,
-                            width: 100,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) {
-                              return Container(
-                                height: 100,
-                                width: 100,
-                                color: Colors.grey[300],
-                                child: const Icon(Icons.image_not_supported),
-                              );
-                            },
+            // ── LOADING STATE ──
+            if (_isLoading)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 60),
+                child: Column(
+                  children: [
+                    CircularProgressIndicator(color: Colors.pinkAccent),
+                    SizedBox(height: 16),
+                    Text('Loading products...'),
+                  ],
+                ),
+              )
+            // ── ERROR STATE ──
+            else if (_errorMessage != null)
+              Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  children: [
+                    const Icon(Icons.wifi_off, size: 48, color: Colors.grey),
+                    const SizedBox(height: 12),
+                    Text(
+                      _errorMessage!,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(color: Colors.grey),
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton.icon(
+                      onPressed: fetchClothesFromDatabase,
+                      icon: const Icon(Icons.refresh),
+                      label: const Text('Retry'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.pinkAccent,
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            // ── EMPTY STATE ──
+            else if (filteredProducts.isEmpty)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 60),
+                child: Text(
+                  'No products found.',
+                  style: TextStyle(color: Colors.grey),
+                ),
+              )
+            // ── PRODUCTS GRID ──
+            else
+              GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                padding: const EdgeInsets.all(8),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  childAspectRatio: 0.75,
+                  crossAxisSpacing: 8,
+                  mainAxisSpacing: 8,
+                ),
+                itemCount: filteredProducts.length,
+                itemBuilder: (context, index) {
+                  final product = filteredProducts[index];
+                  return Card(
+                    elevation: 2,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(8),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Image.network(
+                              product['image'],
+                              height: 110,
+                              width: 100,
+                              fit: BoxFit.cover,
+                              // FIX: Show spinner while image loads
+                              loadingBuilder: (context, child, progress) {
+                                if (progress == null) return child;
+                                return SizedBox(
+                                  height: 110,
+                                  child: Center(
+                                    child: CircularProgressIndicator(
+                                      value: progress.expectedTotalBytes != null
+                                          ? progress.cumulativeBytesLoaded /
+                                                progress.expectedTotalBytes!
+                                          : null,
+                                      color: Colors.pinkAccent,
+                                      strokeWidth: 2,
+                                    ),
+                                  ),
+                                );
+                              },
+                              // FIX: Better error widget with the actual URL for debugging
+                              errorBuilder: (context, error, stackTrace) {
+                                debugPrint(
+                                  'Image failed: ${product['image']} — $error',
+                                );
+                                return Container(
+                                  height: 110,
+                                  width: 100,
+                                  color: Colors.grey[200],
+                                  child: const Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.broken_image,
+                                        color: Colors.grey,
+                                        size: 32,
+                                      ),
+                                      SizedBox(height: 4),
+                                      Text(
+                                        'No image',
+                                        style: TextStyle(
+                                          fontSize: 10,
+                                          color: Colors.grey,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            ),
                           ),
                         ),
-                      ),
-                      Text(
-                        filteredProducts[index]['name'],
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
+                        Text(
+                          product['name'],
+                          textAlign: TextAlign.center,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
+                          ),
                         ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 4),
-                        child: Text(
-                          filteredProducts[index]['price'],
+                        Text(
+                          product['price'],
                           style: const TextStyle(
                             color: Colors.pinkAccent,
                             fontWeight: FontWeight.bold,
                             fontSize: 12,
                           ),
                         ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                        child: Text(
-                          'Sizes: ${filteredProducts[index]['sizes'].join(", ")}',
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            fontSize: 10,
-                            color: Colors.grey,
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          child: Text(
+                            'Sizes: ${(product['sizes'] as List).join(", ")}',
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              fontSize: 10,
+                              color: Colors.grey,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
                         ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(6),
-                        child: ElevatedButton(
-                          onPressed: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  '${filteredProducts[index]['name']} added to cart!',
+                        Padding(
+                          padding: const EdgeInsets.all(6),
+                          child: ElevatedButton(
+                            onPressed: () {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    '${product['name']} added to cart!',
+                                  ),
                                 ),
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.pinkAccent,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
                               ),
-                            );
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.pinkAccent,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 4,
+                            ),
+                            child: const Text(
+                              'Add to Cart',
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 10,
+                              ),
                             ),
                           ),
-                          child: const Text(
-                            'Add to Cart',
-                            style: TextStyle(color: Colors.black, fontSize: 10),
-                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+
             const SizedBox(height: 20),
           ],
         ),
