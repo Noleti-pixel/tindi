@@ -53,6 +53,29 @@ class _SignupScreenState extends State<SignupScreen> {
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(20),
                 ),
+                hintText: "enter fullname",
+                hintStyle: TextStyle(fontWeight: FontWeight.w100),
+                prefixIcon: Icon(Icons.person, color: Colors.black),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Text(
+                    "email",
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+            ),
+            TextField(
+              controller: email,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
                 hintText: "enter email",
                 hintStyle: TextStyle(fontWeight: FontWeight.w100),
                 prefixIcon: Icon(Icons.email, color: Colors.black),
@@ -114,7 +137,7 @@ class _SignupScreenState extends State<SignupScreen> {
                 if (fullname.text.isEmpty) {
                   Get.snackbar("Error", "Please enter first name");
                 } else if (email.text.isEmpty) {
-                  Get.snackbar("Error", "Please enter email name");
+                  Get.snackbar("Error", "Please enter email ");
                 } else if (password.text.isEmpty ||
                     confirmPassword.text.isEmpty ||
                     password.text.toString().compareTo(
@@ -128,7 +151,7 @@ class _SignupScreenState extends State<SignupScreen> {
                 } else {
                   final response = await http.get(
                     Uri.parse(
-                      "http://10.0.2.2/library_api/signup.php?username=${fullname.text} User&email=${email.text}@gmail.com&password=${password.text}&phone=${phone.text}",
+                      "http://localhost/library_api/signup.php?username=${fullname.text}&email=${email.text}&password=${password.text}&phone=${phone.text}",
                     ),
                   );
                   if (response.statusCode == 200) {

@@ -25,7 +25,7 @@ class _ClothesState extends State<Clothes> {
       itemBuilder: (context, index) {
         return Row(
           children: [
-            Image.asset(myClothes[index].image, height: 50, width: 50),
+            Image.asset(myClothes[index].image, height: 100, width: 100),
 
             Column(
               children: [

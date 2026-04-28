@@ -50,7 +50,9 @@ class _DashboardState extends State<Dashboard> {
         ],
         onTap: (index) {
           if (index == 0) {
-            Get.toNamed('/homescreen');
+            Get.toNamed(
+              '/homescreen',
+            ); //keep this, dashboars home goes to products
           } else if (index == 1) {
             Get.toNamed('/cart');
           } else if (index == 2) {

@@ -206,7 +206,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 padding: const EdgeInsets.all(8),
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
-                  childAspectRatio: 0.75,
+                  childAspectRatio: 1.7,
                   crossAxisSpacing: 8,
                   mainAxisSpacing: 8,
                 ),
@@ -219,7 +219,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         Padding(
                           padding: const EdgeInsets.all(8),
@@ -227,14 +227,14 @@ class _HomeScreenState extends State<HomeScreen> {
                             borderRadius: BorderRadius.circular(8),
                             child: Image.network(
                               product['image'],
-                              height: 110,
+                              height: 90,
                               width: 100,
                               fit: BoxFit.cover,
                               // FIX: Show spinner while image loads
                               loadingBuilder: (context, child, progress) {
                                 if (progress == null) return child;
                                 return SizedBox(
-                                  height: 110,
+                                  height: 90,
                                   child: Center(
                                     child: CircularProgressIndicator(
                                       value: progress.expectedTotalBytes != null
@@ -357,7 +357,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
         onTap: (index) {
           if (index == 0) {
-            Get.toNamed('/dashboard');
+            //do nothing, we are already on home
           } else if (index == 1) {
             Get.toNamed('/cart');
           } else if (index == 2) {

@@ -5,6 +5,7 @@ import 'package:flutter_application_1/configs/routes.dart';
 
 void main() {
   runApp(
+    Get.put(CartController());
     GetMaterialApp(
       debugShowCheckedModeBanner: false,
       initialRoute: '/',
