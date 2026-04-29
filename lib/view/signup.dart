@@ -149,19 +149,31 @@ class _SignupScreenState extends State<SignupScreen> {
                     "Password and Password confirmation be none empty and matching",
                   );
                 } else {
-                  final response = await http.get(
-                    Uri.parse(
-                      "http://localhost/library_api/signup.php?username=${fullname.text}&email=${email.text}&password=${password.text}&phone=${phone.text}",
-                    ),
-                  );
-                  if (response.statusCode == 200) {
-                    final serverData = jsonDecode(response.body);
-                    if (serverData['success'] == 1) {
-                      Get.snackbar("Success", "You are registered");
-                      Get.offAndToNamed("/");
+                  try {
+                    final response = await http.get(
+                      Uri.parse(
+                        "http://192.168.11.35/clothes_api/signup.php?username=${fullname.text}&email=${email.text}&password=${password.text}&phone=${phone.text}",
+                      ),
+                    );
+                    if (response.statusCode == 200) {
+                      final serverData = jsonDecode(response.body);
+                      if (serverData['success'] == 1) {
+                        Get.snackbar("Success", "You are registered");
+                        Get.offAndToNamed("/");
+                      } else {
+                        Get.snackbar(
+                          "Error",
+                          serverData['message'] ?? "Unknown error",
+                        );
+                      }
+                    } else {
+                      Get.snackbar(
+                        "Error",
+                        "Server error: ${response.statusCode}",
+                      );
                     }
-                  } else {
-                    Get.snackbar("Registration", "Registration  Failed");
+                  } catch (e) {
+                    Get.snackbar("Error", e.toString());
                   }
                 }
               },

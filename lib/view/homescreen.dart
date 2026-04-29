@@ -1,5 +1,6 @@
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/controllers/cart_controller.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -14,10 +15,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
 
-  // ========== DATABASE URL ==========
-  // CHANGE THIS TO YOUR DATABASE URL
   final String databaseUrl = "http://192.168.11.35/clothes_api/get_clothes.php";
-  // ====================================
 
   List<Map<String, dynamic>> allProducts = [];
   bool _isLoading = true;
@@ -314,6 +312,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           padding: const EdgeInsets.all(6),
                           child: ElevatedButton(
                             onPressed: () {
+                              final cart = Get.find<CartController>();
+                              cart.addItem(product);
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
                                   content: Text(

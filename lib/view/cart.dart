@@ -136,9 +136,234 @@ class _CartScreenState extends State<CartScreen> {
                           width: double.infinity,
                           child: ElevatedButton(
                             onPressed: () {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Order placed successfully!'),
+                              showDialog(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                  title: const Text('Select Payment Method'),
+                                  content: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      ListTile(
+                                        leading: Icon(
+                                          Icons.phone_android,
+                                          color: Colors.green,
+                                        ),
+                                        title: const Text('M-Pesa'),
+                                        onTap: () {
+                                          Get.back();
+                                          final TextEditingController
+                                          mpesaController =
+                                              TextEditingController();
+                                          Get.dialog(
+                                            AlertDialog(
+                                              title: const Text(
+                                                'M-Pesa Payment',
+                                              ),
+                                              content: Column(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  Text(
+                                                    'Total: KSh ${total.toStringAsFixed(0)}',
+                                                    style: const TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color: Colors.pinkAccent,
+                                                    ),
+                                                  ),
+                                                  const SizedBox(height: 16),
+                                                  TextField(
+                                                    controller: mpesaController,
+                                                    keyboardType:
+                                                        TextInputType.phone,
+                                                    decoration: InputDecoration(
+                                                      labelText:
+                                                          'Enter M-Pesa Number',
+                                                      hintText: '07XXXXXXXX',
+                                                      prefixIcon: Icon(
+                                                        Icons.phone_android,
+                                                        color: Colors.green,
+                                                      ),
+                                                      border: OutlineInputBorder(
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                              10,
+                                                            ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              actions: [
+                                                TextButton(
+                                                  onPressed: () => Get.back(),
+                                                  child: const Text(
+                                                    'Cancel',
+                                                    style: TextStyle(
+                                                      color: Colors.grey,
+                                                    ),
+                                                  ),
+                                                ),
+                                                ElevatedButton(
+                                                  onPressed: () {
+                                                    if (mpesaController
+                                                        .text
+                                                        .isEmpty) {
+                                                      Get.snackbar(
+                                                        'Error',
+                                                        'Please enter your M-Pesa number',
+                                                      );
+                                                    } else {
+                                                      Get.back();
+                                                      Get.dialog(
+                                                        AlertDialog(
+                                                          title: const Text(
+                                                            'Payment Initiated',
+                                                          ),
+                                                          content: Column(
+                                                            mainAxisSize:
+                                                                MainAxisSize
+                                                                    .min,
+                                                            children: [
+                                                              Icon(
+                                                                Icons
+                                                                    .phone_android,
+                                                                color: Colors
+                                                                    .green,
+                                                                size: 50,
+                                                              ),
+                                                              const SizedBox(
+                                                                height: 16,
+                                                              ),
+                                                              Text(
+                                                                'An STK push has been sent to ${mpesaController.text}',
+                                                                textAlign:
+                                                                    TextAlign
+                                                                        .center,
+                                                                style:
+                                                                    const TextStyle(
+                                                                      fontSize:
+                                                                          16,
+                                                                    ),
+                                                              ),
+                                                              const SizedBox(
+                                                                height: 8,
+                                                              ),
+                                                              Text(
+                                                                'Amount: KSh ${total.toStringAsFixed(0)}',
+                                                                style: const TextStyle(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
+                                                                  color: Colors
+                                                                      .pinkAccent,
+                                                                  fontSize: 16,
+                                                                ),
+                                                              ),
+                                                              const SizedBox(
+                                                                height: 8,
+                                                              ),
+                                                              const Text(
+                                                                'Enter your M-Pesa PIN on your phone to complete payment.',
+                                                                textAlign:
+                                                                    TextAlign
+                                                                        .center,
+                                                                style: TextStyle(
+                                                                  color: Colors
+                                                                      .grey,
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                          actions: [
+                                                            ElevatedButton(
+                                                              onPressed: () {
+                                                                Get.back();
+                                                                cartController
+                                                                    .cartItems
+                                                                    .clear();
+                                                                Get.offAllNamed(
+                                                                  '/homescreen',
+                                                                );
+                                                              },
+                                                              style: ElevatedButton.styleFrom(
+                                                                backgroundColor:
+                                                                    Colors
+                                                                        .green,
+                                                              ),
+                                                              child: const Text(
+                                                                'Done',
+                                                                style: TextStyle(
+                                                                  color: Colors
+                                                                      .white,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      );
+                                                    }
+                                                  },
+                                                  style:
+                                                      ElevatedButton.styleFrom(
+                                                        backgroundColor:
+                                                            Colors.green,
+                                                      ),
+                                                  child: const Text(
+                                                    'Pay Now',
+                                                    style: TextStyle(
+                                                      color: Colors.white,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                      ListTile(
+                                        leading: Icon(
+                                          Icons.credit_card,
+                                          color: Colors.blue,
+                                        ),
+                                        title: const Text(
+                                          'Credit / Debit Card',
+                                        ),
+                                        onTap: () {
+                                          Get.back();
+                                          Get.snackbar(
+                                            'Card Payment',
+                                            'Redirecting to card payment for KSh ${total.toStringAsFixed(0)}',
+                                          );
+                                        },
+                                      ),
+                                      ListTile(
+                                        leading: Icon(
+                                          Icons.delivery_dining,
+                                          color: Colors.orange,
+                                        ),
+                                        title: const Text('Cash on Delivery'),
+                                        onTap: () {
+                                          Navigator.pop(context);
+                                          Get.snackbar(
+                                            'Cash on Delivery',
+                                            'Order placed! Pay KSh ${total.toStringAsFixed(0)} on delivery',
+                                          );
+                                          cartController.cartItems.clear();
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () => Navigator.pop(context),
+                                      child: const Text(
+                                        'Cancel',
+                                        style: TextStyle(
+                                          color: Colors.pinkAccent,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               );
                             },
